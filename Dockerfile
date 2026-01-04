@@ -1,55 +1,38 @@
-# Stage 1: Dependencies
-FROM node:20-alpine AS deps
-WORKDIR /app
-
-# Copy package files
-COPY package.json package-lock.json ./
-
-# Install dependencies
-RUN npm ci --only=production --ignore-scripts && \
-    npm cache clean --force
-
-# Stage 2: Builder
+# Stage 1: Builder
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json ./
+# Copy package file only (no lock file required)
+COPY package.json ./
 
-# Install all dependencies (including devDependencies)
+# Install all dependencies
 RUN npm install
 
 # Copy source code
 COPY . .
 
-# Build the Next.js application
+# Build the Vite application
 RUN npm run build
 
-# Stage 3: Runner
-FROM node:20-alpine AS runner
-WORKDIR /app
+# Stage 2: Production server
+FROM nginx:alpine AS runner
 
-# Set environment variables
-ENV NODE_ENV=production
-ENV PORT=3000
+# Copy built assets from builder
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Add non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
-
-# Copy necessary files from builder
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-
-# Set ownership
-RUN chown -R nextjs:nodejs /app
-
-# Switch to non-root user
-USER nextjs
+# Copy custom nginx config (optional - for SPA routing)
+RUN echo 'server { \
+    listen 80; \
+    server_name localhost; \
+    root /usr/share/nginx/html; \
+    index index.html; \
+    location / { \
+        try_files $uri $uri/ /index.html; \
+    } \
+}' > /etc/nginx/conf.d/default.conf
 
 # Expose port
-EXPOSE 3000
+EXPOSE 80
 
-# Start the application
-CMD ["node", "server.js"]
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
