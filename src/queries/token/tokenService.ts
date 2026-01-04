@@ -1,8 +1,15 @@
 import { jwtDecode } from "jwt-decode";
 
+interface DecodedToken {
+  id: string;
+  adminId?: string;
+  username?: string;
+  role: string;
+  exp?: number;
+}
+
 class TokenService {
   static setToken(token: string): void {
-
     localStorage.setItem("token", token);
   }
 
@@ -10,14 +17,12 @@ class TokenService {
     return localStorage.getItem("token");
   }
 
-  static decodeToken(): { id: string; role: string, memberId?: string, userId?: string, user_name?: string } | null {
+  static decodeToken(): DecodedToken | null {
     const token = this.getToken();
     if (!token) return null;
 
     try {
-      const decoded = jwtDecode<{ id: string; role: string; memberId?: string, userId?: string, user_name?: string }>(token);
-
-      return decoded;
+      return jwtDecode<DecodedToken>(token);
     } catch (error) {
       console.error("Invalid token", error);
       return null;
@@ -25,25 +30,26 @@ class TokenService {
   }
 
   static getRole(): string | null {
-    return this.decodeToken()?.role || null;
+    return this.decodeToken()?.role ?? null;
   }
 
-  static getMemberId(): string | null {
-    return this.decodeToken()?.memberId || this.decodeToken()?.userId || null;
+  static getAdminId(): string | null {
+    return this.decodeToken()?.adminId ?? null;
   }
 
   static getUserId(): string | null {
-    return this.decodeToken()?.id || null;
+    return this.decodeToken()?.id ?? null;
   }
 
   static getUserName(): string | null {
-    return this.decodeToken()?.user_name || null;
+    return this.decodeToken()?.username ?? null;
   }
 
-  static getBranchCode(): string | null {
-    // For now, return a default branch code
-    // In the future, this could be from user's profile or token
-    return 'BRN001';
+  static isTokenExpired(): boolean {
+    const decoded = this.decodeToken();
+    if (!decoded?.exp) return true;
+
+    return decoded.exp * 1000 < Date.now();
   }
 
   static removeToken(): void {
