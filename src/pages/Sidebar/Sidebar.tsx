@@ -1,5 +1,4 @@
 import './sidebar.scss';
-import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { SuperAdminMenuItems, SchoolAdminMenuItems, TeachersMenuItems, StudentsMenuItems } from './SidebarUtils'
 import { Avatar, Toolbar, Typography, Divider } from '@mui/material';
@@ -15,12 +14,11 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ isOpen, onClose, role, onLogout }: SidebarProps) => {
-  const [selectedItem, setSelectedItem] = useState<string | null>('Dashboard');
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleSelect = (itemName: string) => {
-    setSelectedItem(itemName);
+  const handleNavigate = (path: string) => {
+    navigate(path);
     if (window.innerWidth <= 768) {
       onClose();
     }
@@ -106,15 +104,12 @@ const Sidebar = ({ isOpen, onClose, role, onLogout }: SidebarProps) => {
         padding: '16px',
       }}>
         {menuItems.map((item: SideBarMenuItemType) => {
-          const isSelected = selectedItem === item.name || location.pathname === item.path;
+          const isSelected = location.pathname === item.path;
 
           return (
             <div
               key={item.name}
-              onClick={() => {
-                navigate(item.path!);
-                handleSelect(item.name);
-              }}
+              onClick={() => handleNavigate(item.path!)}
               className={`menu-item ${isSelected ? 'selected' : ''}`}
               style={{
                 background: isSelected ? '#3b82f6' : 'transparent',

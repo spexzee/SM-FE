@@ -9,6 +9,9 @@ export * from "./School";
 // School Admin (Platform Service)
 export * from "./SchoolAdmin";
 
+// Dashboard (Platform Service)
+export * from "./Dashboard";
+
 // Teacher (User Service)
 export * from "./Teacher";
 
@@ -20,3 +23,4 @@ export * from "./Parent";
 
 // API utility
 export { default as useApi } from "./useApi";
+
