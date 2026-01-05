@@ -18,7 +18,7 @@ export const useGetSchoolAdmins = () => {
     return useQuery({
         queryKey: schoolAdminKeys.all,
         queryFn: () =>
-            useApi<ApiResponse<SchoolAdmin[]>>("GET", "/api/admin/user"),
+            useApi<ApiResponse<SchoolAdmin[]>>("GET", "/api/admin/user/get-users"),
     });
 };
 
@@ -27,7 +27,7 @@ export const useGetSchoolAdminById = (userId: string) => {
     return useQuery({
         queryKey: schoolAdminKeys.detail(userId),
         queryFn: () =>
-            useApi<ApiResponse<SchoolAdmin>>("GET", `/api/admin/user/${userId}`),
+            useApi<ApiResponse<SchoolAdmin>>("GET", `/api/admin/user/get-user/${userId}`),
         enabled: !!userId,
     });
 };
@@ -38,7 +38,7 @@ export const useCreateSchoolAdmin = () => {
 
     return useMutation({
         mutationFn: (data: CreateSchoolAdminPayload) =>
-            useApi<ApiResponse<SchoolAdmin>>("POST", "/api/admin/user", data),
+            useApi<ApiResponse<SchoolAdmin>>("POST", "/api/admin/user/create-user", data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: schoolAdminKeys.all });
         },
@@ -59,7 +59,7 @@ export const useUpdateSchoolAdmin = () => {
         }) =>
             useApi<ApiResponse<SchoolAdmin>>(
                 "PUT",
-                `/api/admin/user/${userId}`,
+                `/api/admin/user/update-user/${userId}`,
                 data
             ),
         onSuccess: (_, variables) => {
@@ -71,15 +71,15 @@ export const useUpdateSchoolAdmin = () => {
     });
 };
 
-// Delete school admin (soft delete)
-export const useDeleteSchoolAdmin = () => {
-    const queryClient = useQueryClient();
+// // Delete school admin (soft delete)
+// export const useDeleteSchoolAdmin = () => {
+//     const queryClient = useQueryClient();
 
-    return useMutation({
-        mutationFn: (userId: string) =>
-            useApi<ApiResponse<SchoolAdmin>>("DELETE", `/api/admin/user/${userId}`),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: schoolAdminKeys.all });
-        },
-    });
-};
+//     return useMutation({
+//         mutationFn: (userId: string) =>
+//             useApi<ApiResponse<SchoolAdmin>>("DELETE", `/api/admin/user/${userId}`),
+//         onSuccess: () => {
+//             queryClient.invalidateQueries({ queryKey: schoolAdminKeys.all });
+//         },
+//     });
+// };

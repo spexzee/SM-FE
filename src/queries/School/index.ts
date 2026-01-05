@@ -17,7 +17,7 @@ export const schoolKeys = {
 export const useGetSchools = () => {
     return useQuery({
         queryKey: schoolKeys.all,
-        queryFn: () => useApi<ApiResponse<School[]>>("GET", "/api/admin/school"),
+        queryFn: () => useApi<ApiResponse<School[]>>("GET", "/api/admin/school/get-all-schools"),
     });
 };
 
@@ -26,7 +26,7 @@ export const useGetSchoolById = (schoolId: string) => {
     return useQuery({
         queryKey: schoolKeys.detail(schoolId),
         queryFn: () =>
-            useApi<ApiResponse<School>>("GET", `/api/admin/school/${schoolId}`),
+            useApi<ApiResponse<School>>("GET", `/api/admin/school/get-school/${schoolId}`),
         enabled: !!schoolId,
     });
 };
@@ -56,7 +56,7 @@ export const useUpdateSchool = () => {
             schoolId: string;
             data: UpdateSchoolPayload;
         }) =>
-            useApi<ApiResponse<School>>("PUT", `/api/admin/school/${schoolId}`, data),
+            useApi<ApiResponse<School>>("PUT", `/api/admin/school/update-school/${schoolId}`, data),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({ queryKey: schoolKeys.all });
             queryClient.invalidateQueries({
