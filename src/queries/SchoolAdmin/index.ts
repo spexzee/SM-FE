@@ -70,16 +70,3 @@ export const useUpdateSchoolAdmin = () => {
         },
     });
 };
-
-// // Delete school admin (soft delete)
-// export const useDeleteSchoolAdmin = () => {
-//     const queryClient = useQueryClient();
-
-//     return useMutation({
-//         mutationFn: (userId: string) =>
-//             useApi<ApiResponse<SchoolAdmin>>("DELETE", `/api/admin/user/${userId}`),
-//         onSuccess: () => {
-//             queryClient.invalidateQueries({ queryKey: schoolAdminKeys.all });
-//         },
-//     });
-// };

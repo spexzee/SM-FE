@@ -1,5 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import LoginPage from "../pages/LoginPage";
+import HomePage from "../pages/HomePage";
+import NotFoundPage from "../pages/NotFoundPage";
 import ProtectedRoute from "./RouterProtect";
 
 // Super Admin Pages
@@ -29,7 +31,8 @@ import StudentResults from "../pages/Student/Results";
 const MainRouters = () => {
   return (
     <Routes>
-      <Route path="/" element={<LoginPage />} />
+      <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<LoginPage />} />
 
       {/* Super Admin Routes */}
       <Route element={<ProtectedRoute allowedRoles={["super_admin"]} />}>
@@ -62,8 +65,12 @@ const MainRouters = () => {
         <Route path="/student/attendance" element={<StudentAttendance />} />
         <Route path="/student/results" element={<StudentResults />} />
       </Route>
+
+      {/* 404 Not Found - Catch All */}
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
 
 export default MainRouters;
+
