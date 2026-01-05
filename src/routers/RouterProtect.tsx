@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import TokenService from "../queries/token/tokenService";
-
+import DashboardLayout from "../components/DashboardLayout";
 
 interface ProtectedRouteProps {
   allowedRoles: string[];
@@ -24,7 +24,11 @@ const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
     return <Navigate to="/unauthorized" replace />;
   }
 
-  return <Outlet />;
+  return (
+    <DashboardLayout>
+      <Outlet />
+    </DashboardLayout>
+  );
 };
 
 export default ProtectedRoute;

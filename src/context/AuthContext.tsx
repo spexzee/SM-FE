@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import TokenService from "../queries/token/tokenService";
 
-
 interface AuthUser {
-  id: string;
-  username: string;
+  userId: string;
+  email: string;
   role: string;
+  schoolId?: string;
 }
 
 interface AuthContextType {
@@ -24,9 +24,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const decoded = TokenService.decodeToken();
     if (decoded && !TokenService.isTokenExpired()) {
       setUser({
-        id: decoded.id,
-        username: decoded.username!,
+        userId: decoded.userId || decoded.adminId || "",
+        email: decoded.email || decoded.username || "",
         role: decoded.role,
+        schoolId: decoded.schoolId,
       });
     }
   }, []);
@@ -38,9 +39,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!decoded) return;
 
     setUser({
-      id: decoded.id,
-      username: decoded.username!,
+      userId: decoded.userId || decoded.adminId || "",
+      email: decoded.email || decoded.username || "",
       role: decoded.role,
+      schoolId: decoded.schoolId,
     });
   };
 

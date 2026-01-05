@@ -17,35 +17,36 @@ import {
   Lock,
 } from '@mui/icons-material';
 import '../style/Varaible.scss'
-import { useSuperAdminLogin } from '../queries/Auth';
+import { useLogin } from '../queries/Auth';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import TokenService from '../queries/token/tokenService';
 
 // Define TypeScript interfaces for props
 interface LoginForm {
-  username: string;
+  email: string;
   password: string;
 }
 
 interface LoginErrors {
-  username?: string;
+  email?: string;
   password?: string;
 }
 
 const LoginPage: React.FC = () => {
   // State management
   const [formData, setFormData] = useState<LoginForm>({
-    username: '',
+    email: '',
     password: '',
   });
-  
+
   const [errors, setErrors] = useState<LoginErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
-  const loginMutation = useSuperAdminLogin();
+  const loginMutation = useLogin();
   const isLoading = loginMutation.isPending;
-const { login } = useAuth();
-const navigate = useNavigate();
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
 
   // Event handlers
@@ -55,7 +56,7 @@ const navigate = useNavigate();
       ...prev,
       [name]: value,
     }));
-    
+
     // Clear error for this field
     if (errors[name as keyof LoginErrors]) {
       setErrors(prev => ({
@@ -63,46 +64,70 @@ const navigate = useNavigate();
         [name]: undefined,
       }));
     }
-    
+
     if (loginError) setLoginError('');
   };
 
+  // Get redirect path based on role
+  const getRedirectPath = (role: string): string => {
+    switch (role) {
+      case 'super_admin':
+        return '/super-admin/dashboard';
+      case 'sch_admin':
+        return '/school-admin/dashboard';
+      case 'teacher':
+        return '/teacher/dashboard';
+      case 'student':
+        return '/student/dashboard';
+      default:
+        return '/';
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  // Validation (unchanged)
-  const newErrors: LoginErrors = {};
+    // Validation
+    const newErrors: LoginErrors = {};
 
-  if (!formData.username) {
-    newErrors.username = "Email or mobile number is required";
-  }
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
 
-  if (!formData.password) {
-    newErrors.password = "Password is required";
-  }
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    }
 
-  if (Object.keys(newErrors).length > 0) {
-    setErrors(newErrors);
-    return;
-  }
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
-  loginMutation.mutate(formData, {
-    onSuccess: (res: any) => {
-      if (res?.data?.token) {
-        login(res.data.token);             
-        navigate("/dashboard");       
-      } else {
-        setLoginError("Invalid server response");
-      }
-    },
-    onError: (err: any) => {
-      setLoginError(
-        err?.response?.data?.message ||
-        "Login failed. Please check credentials."
-      );
-    },
-  });
-};
+    loginMutation.mutate(formData, {
+      onSuccess: (res: any) => {
+        console.log("Login response:", res);
+        if (res?.data?.token) {
+          login(res.data.token);
+          // Get role from token and redirect accordingly
+          const role = TokenService.getRole();
+          const redirectPath = getRedirectPath(role || 'super_admin');
+          navigate(redirectPath);
+        } else {
+          setLoginError("Invalid server response - no token received");
+        }
+      },
+      onError: (err: any) => {
+        console.error("Login error:", err);
+        setLoginError(
+          err?.message ||
+          err?.response?.data?.message ||
+          "Login failed. Please check credentials."
+        );
+      },
+    });
+  };
 
 
   return (
@@ -128,27 +153,27 @@ const navigate = useNavigate();
         }}>
           <Fade in={true} timeout={1000}>
             <Box>
-              <Typography 
-                variant="h3" 
-                sx={{ 
+              <Typography
+                variant="h3"
+                sx={{
                   fontWeight: 700,
-                  fontSize: { 
-                    xs: 'var(--font-size-xl, 24px)', 
+                  fontSize: {
+                    xs: 'var(--font-size-xl, 24px)',
                     sm: 'var(--font-size-xxl, 32px)',
                   },
                   marginBottom: 'var(--spacing-sm, 8px)',
                 }}
               >
-                Welcome
+                SMS Platform
               </Typography>
-              
-              <Typography 
-                variant="body1" 
-                sx={{ 
+
+              <Typography
+                variant="body1"
+                sx={{
                   opacity: 0.9,
-                  fontSize: { 
-                    xs: 'var(--font-size-sm, 14px)', 
-                    md: 'var(--font-size-md, 16px)' 
+                  fontSize: {
+                    xs: 'var(--font-size-sm, 14px)',
+                    md: 'var(--font-size-md, 16px)'
                   },
                 }}
               >
@@ -167,8 +192,8 @@ const navigate = useNavigate();
             width: '100%',
           }}>
             {loginError && (
-              <Alert 
-                severity="error" 
+              <Alert
+                severity="error"
                 sx={{
                   marginBottom: 'var(--spacing-lg, 24px)',
                   borderRadius: 'var(--border-radius-md, 8px)',
@@ -185,12 +210,13 @@ const navigate = useNavigate();
 
             <TextField
               fullWidth
-              label="Email or Mobile Number"
-              name="username"
-              value={formData.username}
+              label="Email"
+              name="email"
+              type="email"
+              value={formData.email}
               onChange={handleInputChange}
-              error={!!errors.username}
-              helperText={errors.username}
+              error={!!errors.email}
+              helperText={errors.email}
               variant="outlined"
               InputProps={{
                 startAdornment: (
@@ -219,7 +245,7 @@ const navigate = useNavigate();
                   },
                 },
               }}
-              placeholder="email@example.com or 1234567890"
+              placeholder="your.email@example.com"
             />
 
             <TextField
@@ -244,7 +270,7 @@ const navigate = useNavigate();
                       onClick={() => setShowPassword(!showPassword)}
                       edge="end"
                       aria-label="toggle password visibility"
-                      sx={{ 
+                      sx={{
                         color: 'var(--text-secondary, rgba(0, 0, 0, 0.6))',
                         '&:hover': {
                           backgroundColor: 'var(--hover-overlay, rgba(0, 0, 0, 0.04))',
@@ -300,11 +326,11 @@ const navigate = useNavigate();
                   background: 'var(--text-disabled, rgba(0, 0, 0, 0.38))',
                 },
               }}
-              startIcon={isLoading ? 
-                <CircularProgress 
-                  size={20} 
-                  color="inherit" 
-                  sx={{ color: 'white' }} 
+              startIcon={isLoading ?
+                <CircularProgress
+                  size={20}
+                  color="inherit"
+                  sx={{ color: 'white' }}
                 /> : null
               }
             >

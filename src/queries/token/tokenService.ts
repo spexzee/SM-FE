@@ -1,11 +1,19 @@
 import { jwtDecode } from "jwt-decode";
 
 interface DecodedToken {
-  id: string;
-  adminId?: string;
-  username?: string;
+  // Common fields
+  email?: string;
   role: string;
   exp?: number;
+
+  // Super Admin specific
+  adminId?: string;
+  username?: string;
+
+  // School user specific
+  userId?: string;
+  schoolId?: string;
+  schoolDbName?: string;
 }
 
 class TokenService {
@@ -38,11 +46,25 @@ class TokenService {
   }
 
   static getUserId(): string | null {
-    return this.decodeToken()?.id ?? null;
+    const decoded = this.decodeToken();
+    return decoded?.userId ?? decoded?.adminId ?? null;
   }
 
   static getUserName(): string | null {
-    return this.decodeToken()?.username ?? null;
+    const decoded = this.decodeToken();
+    return decoded?.username ?? decoded?.email ?? null;
+  }
+
+  static getEmail(): string | null {
+    return this.decodeToken()?.email ?? null;
+  }
+
+  static getSchoolId(): string | null {
+    return this.decodeToken()?.schoolId ?? null;
+  }
+
+  static getSchoolDbName(): string | null {
+    return this.decodeToken()?.schoolDbName ?? null;
   }
 
   static isTokenExpired(): boolean {
