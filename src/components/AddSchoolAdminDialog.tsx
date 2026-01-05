@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -17,16 +17,19 @@ import {
     FormHelperText,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
-import { useCreateSchoolAdmin } from '../queries/SchoolAdmin';
+import { useCreateSchoolAdmin, useUpdateSchoolAdmin } from '../queries/SchoolAdmin';
 import { useGetSchools } from '../queries/School';
-import type { CreateSchoolAdminPayload } from '../types';
+import type { CreateSchoolAdminPayload, SchoolAdmin } from '../types';
 
-interface AddSchoolAdminDialogProps {
+interface SchoolAdminDialogProps {
     open: boolean;
     onClose: () => void;
+    editData?: SchoolAdmin | null;
 }
 
-const AddSchoolAdminDialog: React.FC<AddSchoolAdminDialogProps> = ({ open, onClose }) => {
+const SchoolAdminDialog: React.FC<SchoolAdminDialogProps> = ({ open, onClose, editData }) => {
+    const isEditMode = !!editData;
+
     const [formData, setFormData] = useState<CreateSchoolAdminPayload>({
         username: '',
         email: '',
@@ -38,9 +41,31 @@ const AddSchoolAdminDialog: React.FC<AddSchoolAdminDialogProps> = ({ open, onClo
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const createMutation = useCreateSchoolAdmin();
+    const updateMutation = useUpdateSchoolAdmin();
     const { data: schoolsData, isLoading: schoolsLoading } = useGetSchools();
 
     const schools = schoolsData?.data || [];
+
+    // Populate form when editData changes
+    useEffect(() => {
+        if (editData) {
+            setFormData({
+                username: editData.username || '',
+                email: editData.email || '',
+                password: '',
+                schoolId: editData.schoolId || '',
+                contactNumber: editData.contactNumber || '',
+            });
+        } else {
+            setFormData({
+                username: '',
+                email: '',
+                password: '',
+                schoolId: '',
+                contactNumber: '',
+            });
+        }
+    }, [editData]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -68,9 +93,9 @@ const AddSchoolAdminDialog: React.FC<AddSchoolAdminDialogProps> = ({ open, onClo
         } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
             newErrors.email = 'Invalid email format';
         }
-        if (!formData.password.trim()) {
+        if (!isEditMode && !formData.password.trim()) {
             newErrors.password = 'Password is required';
-        } else if (formData.password.length < 6) {
+        } else if (formData.password && formData.password.length < 6) {
             newErrors.password = 'Password must be at least 6 characters';
         }
         if (!formData.schoolId) {
@@ -87,9 +112,24 @@ const AddSchoolAdminDialog: React.FC<AddSchoolAdminDialogProps> = ({ open, onClo
         if (!validate()) return;
 
         try {
-            await createMutation.mutateAsync(formData);
+            if (isEditMode && editData) {
+                const updatePayload: Record<string, string | undefined> = {
+                    username: formData.username,
+                    email: formData.email,
+                    contactNumber: formData.contactNumber,
+                };
+                if (formData.password) {
+                    updatePayload.password = formData.password;
+                }
+                await updateMutation.mutateAsync({
+                    userId: editData.userId,
+                    data: updatePayload,
+                });
+            } else {
+                await createMutation.mutateAsync(formData);
+            }
             handleClose();
-        } catch (error) {
+        } catch {
             // Error is handled by mutation
         }
     };
@@ -104,13 +144,20 @@ const AddSchoolAdminDialog: React.FC<AddSchoolAdminDialogProps> = ({ open, onClo
         });
         setErrors({});
         createMutation.reset();
+        updateMutation.reset();
         onClose();
     };
+
+    const isPending = createMutation.isPending || updateMutation.isPending;
+    const isError = createMutation.isError || updateMutation.isError;
+    const errorMessage = (createMutation.error as { message?: string })?.message ||
+        (updateMutation.error as { message?: string })?.message ||
+        'Operation failed';
 
     return (
         <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
             <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                Add School Admin
+                {isEditMode ? 'Edit School Admin' : 'Add School Admin'}
                 <IconButton onClick={handleClose} size="small">
                     <CloseIcon />
                 </IconButton>
@@ -118,9 +165,9 @@ const AddSchoolAdminDialog: React.FC<AddSchoolAdminDialogProps> = ({ open, onClo
 
             <form onSubmit={handleSubmit}>
                 <DialogContent>
-                    {createMutation.isError && (
+                    {isError && (
                         <Alert severity="error" sx={{ mb: 2 }}>
-                            {(createMutation.error as { message?: string })?.message || 'Failed to create school admin'}
+                            {errorMessage}
                         </Alert>
                     )}
 
@@ -131,7 +178,7 @@ const AddSchoolAdminDialog: React.FC<AddSchoolAdminDialogProps> = ({ open, onClo
                                 value={formData.schoolId}
                                 label="School"
                                 onChange={(e) => handleSelectChange('schoolId', e.target.value)}
-                                disabled={schoolsLoading}
+                                disabled={schoolsLoading || isEditMode}
                             >
                                 {schools.map((school) => (
                                     <MenuItem key={school.schoolId} value={school.schoolId}>
@@ -167,13 +214,13 @@ const AddSchoolAdminDialog: React.FC<AddSchoolAdminDialogProps> = ({ open, onClo
 
                         <TextField
                             name="password"
-                            label="Password"
+                            label={isEditMode ? "Password (leave blank to keep current)" : "Password"}
                             type="password"
                             value={formData.password}
                             onChange={handleChange}
                             error={!!errors.password}
                             helperText={errors.password}
-                            required
+                            required={!isEditMode}
                             fullWidth
                         />
 
@@ -194,10 +241,10 @@ const AddSchoolAdminDialog: React.FC<AddSchoolAdminDialogProps> = ({ open, onClo
                     <Button
                         type="submit"
                         variant="contained"
-                        disabled={createMutation.isPending}
-                        startIcon={createMutation.isPending ? <CircularProgress size={20} /> : null}
+                        disabled={isPending}
+                        startIcon={isPending ? <CircularProgress size={20} /> : null}
                     >
-                        {createMutation.isPending ? 'Creating...' : 'Create Admin'}
+                        {isPending ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update Admin' : 'Create Admin')}
                     </Button>
                 </DialogActions>
             </form>
@@ -205,4 +252,4 @@ const AddSchoolAdminDialog: React.FC<AddSchoolAdminDialogProps> = ({ open, onClo
     );
 };
 
-export default AddSchoolAdminDialog;
+export default SchoolAdminDialog;

@@ -2,11 +2,19 @@ import './sidebar.scss';
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { SuperAdminMenuItems, SchoolAdminMenuItems, TeachersMenuItems, StudentsMenuItems } from './SidebarUtils'
-import { Avatar, Toolbar, Typography } from '@mui/material';
+import { Avatar, Toolbar, Typography, Divider } from '@mui/material';
+import LogoutIcon from '@mui/icons-material/Logout';
 import type { SideBarMenuItemType } from './SidebarUtils';
 import TokenService from '../../queries/token/tokenService';
 
-const Sidebar = ({ isOpen, onClose, role }: { isOpen: boolean, onClose: () => void, role: string | null }) => {
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
+  role: string | null;
+  onLogout?: () => void;
+}
+
+const Sidebar = ({ isOpen, onClose, role, onLogout }: SidebarProps) => {
   const [selectedItem, setSelectedItem] = useState<string | null>('Dashboard');
   const navigate = useNavigate();
   const location = useLocation();
@@ -47,6 +55,8 @@ const Sidebar = ({ isOpen, onClose, role }: { isOpen: boolean, onClose: () => vo
         zIndex: 100,
         background: '#1e293b',
         overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       <Toolbar className="navbar-toolbar" />
@@ -88,8 +98,10 @@ const Sidebar = ({ isOpen, onClose, role }: { isOpen: boolean, onClose: () => vo
           </div>
         </div>
       )}
+
+      {/* Menu Items */}
       <div style={{
-        height: 'calc(100vh - 150px)',
+        flex: 1,
         overflowY: 'auto',
         padding: '16px',
       }}>
@@ -130,6 +142,37 @@ const Sidebar = ({ isOpen, onClose, role }: { isOpen: boolean, onClose: () => vo
           );
         })}
       </div>
+
+      {/* Logout Button at Bottom */}
+      {isOpen && onLogout && (
+        <div style={{ padding: '16px' }}>
+          <Divider sx={{ borderColor: '#334155', mb: 2 }} />
+          <div
+            onClick={onLogout}
+            className="menu-item"
+            style={{
+              background: 'transparent',
+              borderRadius: '8px',
+              padding: '12px 16px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              color: '#ef4444',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <span style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              flex: 1,
+            }}>
+              <LogoutIcon />
+              <span>Logout</span>
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Box, AppBar, Toolbar, IconButton, Typography } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+// import LogoutIcon from '@mui/icons-material/Logout';
 import Sidebar from '../pages/Sidebar/Sidebar';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
@@ -10,10 +12,16 @@ interface DashboardLayoutProps {
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
 
     const toggleSidebar = () => {
         setSidebarOpen(!sidebarOpen);
+    };
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
     };
 
     return (
@@ -39,6 +47,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
                         SMS Platform
                     </Typography>
+                    {/* <Button
+                        color="inherit"
+                        onClick={handleLogout}
+                        startIcon={<LogoutIcon />}
+                        sx={{ textTransform: 'none' }}
+                    >
+                        Logout
+                    </Button> */}
                 </Toolbar>
             </AppBar>
 
@@ -47,6 +63,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 isOpen={sidebarOpen}
                 onClose={() => setSidebarOpen(false)}
                 role={user?.role || null}
+                onLogout={handleLogout}
             />
 
             {/* Main Content */}

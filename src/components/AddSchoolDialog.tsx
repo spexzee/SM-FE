@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -12,15 +12,18 @@ import {
     IconButton,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
-import { useCreateSchool } from '../queries/School';
-import type { CreateSchoolPayload } from '../types';
+import { useCreateSchool, useUpdateSchool } from '../queries/School';
+import type { CreateSchoolPayload, School } from '../types';
 
-interface AddSchoolDialogProps {
+interface SchoolDialogProps {
     open: boolean;
     onClose: () => void;
+    editData?: School | null;
 }
 
-const AddSchoolDialog: React.FC<AddSchoolDialogProps> = ({ open, onClose }) => {
+const SchoolDialog: React.FC<SchoolDialogProps> = ({ open, onClose, editData }) => {
+    const isEditMode = !!editData;
+
     const [formData, setFormData] = useState<CreateSchoolPayload>({
         schoolName: '',
         dbName: '',
@@ -34,11 +37,36 @@ const AddSchoolDialog: React.FC<AddSchoolDialogProps> = ({ open, onClose }) => {
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const createMutation = useCreateSchool();
+    const updateMutation = useUpdateSchool();
+
+    // Populate form when editData changes
+    useEffect(() => {
+        if (editData) {
+            setFormData({
+                schoolName: editData.schoolName || '',
+                dbName: editData.schoolDbName || '',
+                schoolLogo: editData.schoolLogo || '',
+                schoolAddress: editData.schoolAddress || '',
+                schoolEmail: editData.schoolEmail || '',
+                schoolContact: editData.schoolContact || '',
+                schoolWebsite: editData.schoolWebsite || '',
+            });
+        } else {
+            setFormData({
+                schoolName: '',
+                dbName: '',
+                schoolLogo: '',
+                schoolAddress: '',
+                schoolEmail: '',
+                schoolContact: '',
+                schoolWebsite: '',
+            });
+        }
+    }, [editData]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
-        // Clear error when user types
         if (errors[name]) {
             setErrors((prev) => ({ ...prev, [name]: '' }));
         }
@@ -50,9 +78,9 @@ const AddSchoolDialog: React.FC<AddSchoolDialogProps> = ({ open, onClose }) => {
         if (!formData.schoolName.trim()) {
             newErrors.schoolName = 'School name is required';
         }
-        if (!formData.dbName.trim()) {
+        if (!isEditMode && !formData.dbName.trim()) {
             newErrors.dbName = 'Database name is required';
-        } else if (!/^[a-z0-9-]+$/.test(formData.dbName)) {
+        } else if (!isEditMode && !/^[a-z0-9-]+$/.test(formData.dbName)) {
             newErrors.dbName = 'Only lowercase letters, numbers, and hyphens allowed';
         }
         if (formData.schoolEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.schoolEmail)) {
@@ -69,9 +97,23 @@ const AddSchoolDialog: React.FC<AddSchoolDialogProps> = ({ open, onClose }) => {
         if (!validate()) return;
 
         try {
-            await createMutation.mutateAsync(formData);
+            if (isEditMode && editData) {
+                await updateMutation.mutateAsync({
+                    schoolId: editData.schoolId,
+                    data: {
+                        schoolName: formData.schoolName,
+                        schoolLogo: formData.schoolLogo,
+                        schoolAddress: formData.schoolAddress,
+                        schoolEmail: formData.schoolEmail,
+                        schoolContact: formData.schoolContact,
+                        schoolWebsite: formData.schoolWebsite,
+                    },
+                });
+            } else {
+                await createMutation.mutateAsync(formData);
+            }
             handleClose();
-        } catch (error) {
+        } catch {
             // Error is handled by mutation
         }
     };
@@ -88,13 +130,20 @@ const AddSchoolDialog: React.FC<AddSchoolDialogProps> = ({ open, onClose }) => {
         });
         setErrors({});
         createMutation.reset();
+        updateMutation.reset();
         onClose();
     };
+
+    const isPending = createMutation.isPending || updateMutation.isPending;
+    const isError = createMutation.isError || updateMutation.isError;
+    const errorMessage = (createMutation.error as { message?: string })?.message ||
+        (updateMutation.error as { message?: string })?.message ||
+        'Operation failed';
 
     return (
         <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
             <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                Add New School
+                {isEditMode ? 'Edit School' : 'Add New School'}
                 <IconButton onClick={handleClose} size="small">
                     <CloseIcon />
                 </IconButton>
@@ -102,9 +151,9 @@ const AddSchoolDialog: React.FC<AddSchoolDialogProps> = ({ open, onClose }) => {
 
             <form onSubmit={handleSubmit}>
                 <DialogContent>
-                    {createMutation.isError && (
+                    {isError && (
                         <Alert severity="error" sx={{ mb: 2 }}>
-                            {(createMutation.error as { message?: string })?.message || 'Failed to create school'}
+                            {errorMessage}
                         </Alert>
                     )}
 
@@ -127,7 +176,8 @@ const AddSchoolDialog: React.FC<AddSchoolDialogProps> = ({ open, onClose }) => {
                             onChange={handleChange}
                             error={!!errors.dbName}
                             helperText={errors.dbName || 'Lowercase letters, numbers, and hyphens only (e.g., lincoln-high)'}
-                            required
+                            required={!isEditMode}
+                            disabled={isEditMode}
                             fullWidth
                         />
 
@@ -185,10 +235,10 @@ const AddSchoolDialog: React.FC<AddSchoolDialogProps> = ({ open, onClose }) => {
                     <Button
                         type="submit"
                         variant="contained"
-                        disabled={createMutation.isPending}
-                        startIcon={createMutation.isPending ? <CircularProgress size={20} /> : null}
+                        disabled={isPending}
+                        startIcon={isPending ? <CircularProgress size={20} /> : null}
                     >
-                        {createMutation.isPending ? 'Creating...' : 'Create School'}
+                        {isPending ? (isEditMode ? 'Updating...' : 'Creating...') : (isEditMode ? 'Update School' : 'Create School')}
                     </Button>
                 </DialogActions>
             </form>
@@ -196,4 +246,4 @@ const AddSchoolDialog: React.FC<AddSchoolDialogProps> = ({ open, onClose }) => {
     );
 };
 
-export default AddSchoolDialog;
+export default SchoolDialog;
