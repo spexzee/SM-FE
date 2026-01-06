@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Box, AppBar, Toolbar, IconButton, Typography } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 // import LogoutIcon from '@mui/icons-material/Logout';
-import Sidebar from '../pages/Sidebar/Sidebar';
-import { useAuth } from '../context/AuthContext';
+import Sidebar from '../../pages/Sidebar/Sidebar';
+import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 interface DashboardLayoutProps {

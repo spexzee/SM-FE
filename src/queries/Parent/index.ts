@@ -123,3 +123,13 @@ export const useDeleteParent = (schoolId: string) => {
         },
     });
 };
+
+// Search parents for autocomplete
+export const searchParentsApi = (schoolId: string, query: string) =>
+    useApi<ApiResponse<Parent[]>>(
+        "GET",
+        `/api/school/${schoolId}/parents/search`,
+        undefined,
+        { query }
+    );
+
