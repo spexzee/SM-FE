@@ -1,7 +1,7 @@
 import { Box, Typography, Grid, CircularProgress, Alert } from '@mui/material';
 import SchoolIcon from '@mui/icons-material/School';
 import PeopleIcon from '@mui/icons-material/People';
-import DashboardCard from '../../components/DashboardCard';
+import DashboardCard from '../../components/Dashboard/DashboardCard';
 import { useGetDashboardStats } from '../../queries/Dashboard';
 
 const SuperAdminDashboard = () => {

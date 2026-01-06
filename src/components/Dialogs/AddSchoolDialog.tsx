@@ -12,8 +12,8 @@ import {
     IconButton,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
-import { useCreateSchool, useUpdateSchool } from '../queries/School';
-import type { CreateSchoolPayload, School } from '../types';
+import { useCreateSchool, useUpdateSchool } from '../../queries/School';
+import type { CreateSchoolPayload, School } from '../../types';
 
 interface SchoolDialogProps {
     open: boolean;

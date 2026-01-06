@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import TokenService from "../queries/token/tokenService";
-import DashboardLayout from "../components/DashboardLayout";
+import DashboardLayout from "../components/Dashboard/DashboardLayout";
 
 interface ProtectedRouteProps {
   allowedRoles: string[];

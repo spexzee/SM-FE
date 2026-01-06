@@ -17,9 +17,9 @@ import {
     FormHelperText,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
-import { useCreateSchoolAdmin, useUpdateSchoolAdmin } from '../queries/SchoolAdmin';
-import { useGetSchools } from '../queries/School';
-import type { CreateSchoolAdminPayload, SchoolAdmin } from '../types';
+import { useCreateSchoolAdmin, useUpdateSchoolAdmin } from '../../queries/SchoolAdmin';
+import { useGetSchools } from '../../queries/School';
+import type { CreateSchoolAdminPayload, SchoolAdmin } from '../../types';
 
 interface SchoolAdminDialogProps {
     open: boolean;

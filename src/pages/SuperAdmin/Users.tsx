@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import { Edit as EditIcon, Block as BlockIcon } from '@mui/icons-material';
-import DataTable, { StatusChip } from '../../components/DataTable';
-import type { Column } from '../../components/DataTable';
-import SchoolAdminDialog from '../../components/AddSchoolAdminDialog';
+import DataTable, { StatusChip } from '../../components/Table/DataTable';
+import type { Column } from '../../components/Table/DataTable';
+import SchoolAdminDialog from '../../components/Dialogs/AddSchoolAdminDialog';
 import { useGetSchoolAdmins, useUpdateSchoolAdmin } from '../../queries/SchoolAdmin';
 import type { SchoolAdmin } from '../../types';
 

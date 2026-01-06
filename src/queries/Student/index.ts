@@ -105,3 +105,13 @@ export const useDeleteStudent = (schoolId: string) => {
         },
     });
 };
+
+// Search students for autocomplete
+export const searchStudentsApi = (schoolId: string, query: string) =>
+    useApi<ApiResponse<Student[]>>(
+        "GET",
+        `/api/school/${schoolId}/students/search`,
+        undefined,
+        { query }
+    );
+
