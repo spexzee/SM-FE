@@ -64,6 +64,18 @@ export const SchoolAdminMenuItems: SideBarMenuItemType[] = [
     path: "/school-admin/parents",
     isExpandable: false,
   },
+  {
+    name: "Requests",
+    icon: <MuiIcons.Assignment />,
+    path: "/school-admin/requests",
+    isExpandable: false,
+  },
+  {
+    name: "Profile",
+    icon: <MuiIcons.AccountCircle />,
+    path: "/school-admin/profile",
+    isExpandable: false,
+  },
 ];
 
 // Teachers Menu Items
@@ -87,9 +99,27 @@ export const TeachersMenuItems: SideBarMenuItemType[] = [
     isExpandable: false,
   },
   {
+    name: "Parents",
+    icon: <MuiIcons.People />,
+    path: "/teacher/parents",
+    isExpandable: false,
+  },
+  {
     name: "Attendance",
     icon: <MuiIcons.CheckCircle />,
     path: "/teacher/attendance",
+    isExpandable: false,
+  },
+  {
+    name: "My Requests",
+    icon: <MuiIcons.Assignment />,
+    path: "/teacher/my-requests",
+    isExpandable: false,
+  },
+  {
+    name: "Profile",
+    icon: <MuiIcons.AccountCircle />,
+    path: "/teacher/profile",
     isExpandable: false,
   },
 ];
@@ -120,4 +150,17 @@ export const StudentsMenuItems: SideBarMenuItemType[] = [
     path: "/student/results",
     isExpandable: false,
   },
+  {
+    name: "My Requests",
+    icon: <MuiIcons.Assignment />,
+    path: "/student/my-requests",
+    isExpandable: false,
+  },
+  {
+    name: "Profile",
+    icon: <MuiIcons.AccountCircle />,
+    path: "/student/profile",
+    isExpandable: false,
+  },
 ];
+

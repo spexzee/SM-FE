@@ -47,6 +47,7 @@ import Refresh from "@mui/icons-material/Refresh";
 import BarChart from "@mui/icons-material/BarChart";
 import FileCopy from "@mui/icons-material/FileCopy";
 import Undo from "@mui/icons-material/Undo";
+import Assignment from "@mui/icons-material/Assignment";
 
 export const MuiIcons = {
   Dashboard,
@@ -99,4 +100,5 @@ export const MuiIcons = {
   BarChart,
   FileCopy,
   Undo,
+  Assignment,
 };

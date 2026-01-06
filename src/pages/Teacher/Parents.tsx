@@ -3,36 +3,36 @@ import { Box, IconButton, Tooltip } from '@mui/material';
 import { Edit as EditIcon, Block as BlockIcon } from '@mui/icons-material';
 import DataTable, { StatusChip } from '../../components/Table/DataTable';
 import type { Column } from '../../components/Table/DataTable';
-import StudentDialog from '../../components/Dialogs/AddStudentDialog';
-import { useGetStudents, useUpdateStudent } from '../../queries/Student';
-import type { Student } from '../../types';
+import ParentDialog from '../../components/Dialogs/AddParentDialog';
+import { useGetParents, useUpdateParent } from '../../queries/Parent';
+import type { Parent } from '../../types';
 import TokenService from '../../queries/token/tokenService';
 
-const TeacherStudentsPage = () => {
+const TeacherParentsPage = () => {
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [editData, setEditData] = useState<Student | null>(null);
+    const [editData, setEditData] = useState<Parent | null>(null);
 
     const schoolId = TokenService.getSchoolId() || '';
-    const { data, isLoading, error } = useGetStudents(schoolId);
-    const updateMutation = useUpdateStudent(schoolId);
+    const { data, isLoading, error } = useGetParents(schoolId);
+    const updateMutation = useUpdateParent(schoolId);
 
-    const students = data?.data || [];
+    const parents = data?.data || [];
 
     const handleAdd = () => {
         setEditData(null);
         setDialogOpen(true);
     };
 
-    const handleEdit = (student: Student) => {
-        setEditData(student);
+    const handleEdit = (parent: Parent) => {
+        setEditData(parent);
         setDialogOpen(true);
     };
 
-    const handleToggleStatus = async (student: Student) => {
-        const newStatus = student.status === 'active' ? 'inactive' : 'active';
+    const handleToggleStatus = async (parent: Parent) => {
+        const newStatus = parent.status === 'active' ? 'inactive' : 'active';
         try {
             await updateMutation.mutateAsync({
-                studentId: student.studentId,
+                parentId: parent.parentId,
                 data: { status: newStatus },
             });
         } catch (err) {
@@ -45,18 +45,22 @@ const TeacherStudentsPage = () => {
         setEditData(null);
     };
 
-    const columns: Column<Student>[] = [
-        { id: 'studentId', label: 'ID', minWidth: 100 },
+    const columns: Column<Parent>[] = [
+        { id: 'parentId', label: 'ID', minWidth: 100 },
         {
             id: 'firstName',
             label: 'Name',
             minWidth: 150,
             format: (_, row) => `${row.firstName} ${row.lastName}`,
         },
-        { id: 'class', label: 'Class', minWidth: 80 },
-        { id: 'section', label: 'Section', minWidth: 80 },
-        { id: 'rollNumber', label: 'Roll No', minWidth: 80 },
+        { id: 'email', label: 'Email', minWidth: 180 },
         { id: 'phone', label: 'Phone', minWidth: 120 },
+        {
+            id: 'relationship',
+            label: 'Relationship',
+            minWidth: 100,
+            format: (value) => (value as string)?.charAt(0).toUpperCase() + (value as string)?.slice(1),
+        },
         {
             id: 'status',
             label: 'Status',
@@ -93,19 +97,19 @@ const TeacherStudentsPage = () => {
 
     return (
         <Box sx={{ p: { xs: 2, sm: 3 } }}>
-            <DataTable<Student>
-                title="Students"
+            <DataTable<Parent>
+                title="Parents"
                 columns={columns}
-                data={students}
+                data={parents}
                 isLoading={isLoading}
-                error={error ? (error as { message?: string })?.message || 'Failed to load students' : null}
+                error={error ? (error as { message?: string })?.message || 'Failed to load parents' : null}
                 onAddClick={handleAdd}
-                addButtonLabel="Add Student"
-                emptyMessage="No students found. Click 'Add Student' to create one."
-                getRowKey={(row) => row.studentId}
+                addButtonLabel="Add Parent"
+                emptyMessage="No parents found. Click 'Add Parent' to create one."
+                getRowKey={(row) => row.parentId}
             />
 
-            <StudentDialog
+            <ParentDialog
                 open={dialogOpen}
                 onClose={handleDialogClose}
                 schoolId={schoolId}
@@ -115,4 +119,4 @@ const TeacherStudentsPage = () => {
     );
 };
 
-export default TeacherStudentsPage;
+export default TeacherParentsPage;

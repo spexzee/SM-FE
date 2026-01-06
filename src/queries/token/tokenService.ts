@@ -14,6 +14,20 @@ interface DecodedToken {
   userId?: string;
   schoolId?: string;
   schoolDbName?: string;
+
+  // Teacher specific
+  teacherId?: string;
+  classes?: string[];
+  subjects?: string[];
+
+  // Student specific
+  studentId?: string;
+  class?: string;
+  section?: string;
+
+  // Name fields
+  firstName?: string;
+  lastName?: string;
 }
 
 class TokenService {

@@ -15,18 +15,25 @@ import School from "../pages/SchoolAdmin/School";
 import Teachers from "../pages/SchoolAdmin/Teachers";
 import SchoolAdminStudents from "../pages/SchoolAdmin/Students";
 import Parents from "../pages/SchoolAdmin/Parents";
+import SchoolAdminProfile from "../pages/SchoolAdmin/Profile";
+import Requests from "../pages/SchoolAdmin/Requests";
 
 // Teacher Pages
 import TeacherDashboard from "../pages/Teacher/Dashboard";
 import TeacherClasses from "../pages/Teacher/Classes";
 import TeacherStudents from "../pages/Teacher/Students";
+import TeacherParents from "../pages/Teacher/Parents";
 import TeacherAttendance from "../pages/Teacher/Attendance";
+import TeacherProfile from "../pages/Teacher/Profile";
+import TeacherMyRequests from "../pages/Teacher/MyRequests";
 
 // Student Pages
 import StudentDashboard from "../pages/Student/Dashboard";
 import StudentClasses from "../pages/Student/Classes";
 import StudentAttendance from "../pages/Student/Attendance";
 import StudentResults from "../pages/Student/Results";
+import StudentProfile from "../pages/Student/Profile";
+import StudentMyRequests from "../pages/Student/MyRequests";
 
 const MainRouters = () => {
   return (
@@ -48,6 +55,8 @@ const MainRouters = () => {
         <Route path="/school-admin/teachers" element={<Teachers />} />
         <Route path="/school-admin/students" element={<SchoolAdminStudents />} />
         <Route path="/school-admin/parents" element={<Parents />} />
+        <Route path="/school-admin/requests" element={<Requests />} />
+        <Route path="/school-admin/profile" element={<SchoolAdminProfile />} />
       </Route>
 
       {/* Teacher Routes */}
@@ -55,7 +64,10 @@ const MainRouters = () => {
         <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
         <Route path="/teacher/classes" element={<TeacherClasses />} />
         <Route path="/teacher/students" element={<TeacherStudents />} />
+        <Route path="/teacher/parents" element={<TeacherParents />} />
         <Route path="/teacher/attendance" element={<TeacherAttendance />} />
+        <Route path="/teacher/my-requests" element={<TeacherMyRequests />} />
+        <Route path="/teacher/profile" element={<TeacherProfile />} />
       </Route>
 
       {/* Student Routes */}
@@ -64,6 +76,8 @@ const MainRouters = () => {
         <Route path="/student/classes" element={<StudentClasses />} />
         <Route path="/student/attendance" element={<StudentAttendance />} />
         <Route path="/student/results" element={<StudentResults />} />
+        <Route path="/student/my-requests" element={<StudentMyRequests />} />
+        <Route path="/student/profile" element={<StudentProfile />} />
       </Route>
 
       {/* 404 Not Found - Catch All */}
@@ -73,4 +87,5 @@ const MainRouters = () => {
 }
 
 export default MainRouters;
+
 

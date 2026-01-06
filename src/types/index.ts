@@ -245,3 +245,39 @@ export interface ParentFilters {
     status?: "active" | "inactive";
     relationship?: "father" | "mother" | "guardian" | "other";
 }
+
+// Request/Ticket Types
+export interface Request {
+    requestId: string;
+    userType: "teacher" | "student" | "parent" | "sch_admin";
+    userId: string;
+    userName: string;
+    requestType: "email_change" | "phone_change" | "general";
+    oldValue?: string;
+    newValue?: string;
+    message: string;
+    status: "pending" | "approved" | "rejected";
+    adminReply?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface CreateRequestPayload {
+    userType: "teacher" | "student" | "parent" | "sch_admin";
+    userId: string;
+    userName: string;
+    requestType: "email_change" | "phone_change" | "general";
+    oldValue?: string;
+    newValue?: string;
+    message: string;
+}
+
+export interface UpdateRequestPayload {
+    status: "pending" | "approved" | "rejected";
+    adminReply?: string;
+}
+
+export interface RequestFilters {
+    status?: "pending" | "approved" | "rejected";
+    userType?: "teacher" | "student" | "parent" | "sch_admin";
+}
