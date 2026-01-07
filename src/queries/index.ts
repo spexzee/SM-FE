@@ -33,7 +33,8 @@ export * from "./Class";
 // Subject (User Service)
 export * from "./Subject";
 
-// API utility
+// Attendance (User Service)
+export * from "./Attendance";
 export { default as useApi } from "./useApi";
 
 

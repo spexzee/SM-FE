@@ -17,6 +17,16 @@ export interface School {
     schoolEmail?: string;
     schoolContact?: string;
     schoolWebsite?: string;
+    attendanceSettings?: {
+        mode: "simple" | "period_wise" | "check_in_out";
+        workingHours: {
+            start: string;
+            end: string;
+        };
+        lateThresholdMinutes: number;
+        halfDayThresholdMinutes: number;
+        periodsPerDay: number;
+    };
     createdAt?: string;
     updatedAt?: string;
 }
@@ -29,6 +39,16 @@ export interface CreateSchoolPayload {
     schoolEmail?: string;
     schoolContact?: string;
     schoolWebsite?: string;
+    attendanceSettings?: {
+        mode: "simple" | "period_wise" | "check_in_out";
+        workingHours?: {
+            start: string;
+            end: string;
+        };
+        lateThresholdMinutes?: number;
+        halfDayThresholdMinutes?: number;
+        periodsPerDay?: number;
+    };
 }
 
 export interface UpdateSchoolPayload {
@@ -39,6 +59,16 @@ export interface UpdateSchoolPayload {
     schoolEmail?: string;
     schoolContact?: string;
     schoolWebsite?: string;
+    attendanceSettings?: {
+        mode?: "simple" | "period_wise" | "check_in_out";
+        workingHours?: {
+            start?: string;
+            end?: string;
+        };
+        lateThresholdMinutes?: number;
+        halfDayThresholdMinutes?: number;
+        periodsPerDay?: number;
+    };
 }
 
 // Admin Types (Super Admin)
@@ -353,4 +383,223 @@ export interface UpdateSubjectPayload {
 
 export interface SubjectFilters {
     status?: "active" | "inactive";
+}
+
+// ==========================================
+// ATTENDANCE TYPES
+// ==========================================
+
+// Attendance Modes
+export type AttendanceMode = "simple" | "period_wise" | "check_in_out";
+
+// Attendance Status
+export type AttendanceStatus = "present" | "absent" | "late" | "half_day" | "leave" | "pending";
+
+// School Attendance Settings
+export interface AttendanceSettings {
+    mode: AttendanceMode;
+    workingHours: {
+        start: string;
+        end: string;
+    };
+    lateThresholdMinutes: number;
+    halfDayThresholdMinutes: number;
+    periodsPerDay: number;
+}
+
+// Simple Daily Attendance
+export interface AttendanceSimple {
+    attendanceId: string;
+    schoolId: string;
+    classId: string;
+    sectionId?: string;
+    studentId: string;
+    date: string;
+    status: AttendanceStatus;
+    markedBy: string;
+    markedByRole: "teacher" | "sch_admin";
+    remarks?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+// Period-wise Attendance
+export interface AttendancePeriod {
+    attendanceId: string;
+    schoolId: string;
+    classId: string;
+    sectionId?: string;
+    studentId: string;
+    date: string;
+    period: number;
+    subjectId: string;
+    teacherId: string;
+    status: "present" | "absent" | "late";
+    markedBy: string;
+    isSubstitute: boolean;
+    remarks?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+// Check-In/Check-Out Attendance
+export interface AttendanceCheckin {
+    logId: string;
+    schoolId: string;
+    userId: string;
+    userType: "student" | "teacher";
+    classId?: string;
+    sectionId?: string;
+    date: string;
+    checkInTime?: string;
+    checkOutTime?: string;
+    checkInMethod: "manual" | "biometric" | "rfid" | "app";
+    checkOutMethod?: "manual" | "biometric" | "rfid" | "app";
+    totalMinutes: number;
+    status: AttendanceStatus;
+    markedBy?: string;
+    remarks?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+// Teacher Attendance
+export interface TeacherAttendance {
+    attendanceId: string;
+    schoolId: string;
+    teacherId: string;
+    date: string;
+    checkInTime?: string;
+    checkOutTime?: string;
+    status: AttendanceStatus;
+    leaveType?: "casual" | "sick" | "earned" | "unpaid" | "other";
+    totalMinutes: number;
+    markedBy: string;
+    markedByRole: "teacher" | "sch_admin";
+    remarks?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+// Payloads for marking attendance
+export interface MarkSimpleAttendancePayload {
+    classId: string;
+    sectionId?: string;
+    date?: string;
+    attendanceRecords: {
+        studentId: string;
+        status: AttendanceStatus;
+        remarks?: string;
+    }[];
+}
+
+export interface MarkPeriodAttendancePayload {
+    classId: string;
+    sectionId?: string;
+    date?: string;
+    period: number;
+    subjectId: string;
+    teacherId: string;
+    isSubstitute?: boolean;
+    attendanceRecords: {
+        studentId: string;
+        status: "present" | "absent" | "late";
+        remarks?: string;
+    }[];
+}
+
+export interface CheckInPayload {
+    userId: string;
+    userType: "student" | "teacher";
+    classId?: string;
+    sectionId?: string;
+    method?: "manual" | "biometric" | "rfid" | "app";
+}
+
+export interface MarkTeacherAttendancePayload {
+    date?: string;
+    attendanceRecords: {
+        teacherId: string;
+        status: AttendanceStatus;
+        leaveType?: "casual" | "sick" | "earned" | "unpaid" | "other";
+        remarks?: string;
+    }[];
+}
+
+// Attendance Summary
+export interface AttendanceSummary {
+    total: number;
+    present: number;
+    absent: number;
+    late: number;
+    halfDay: number;
+    leave: number;
+    percentage?: string;
+}
+
+// Report Types
+export interface DailyReport {
+    date: string;
+    mode: AttendanceMode;
+    students: {
+        attendance: AttendanceSimple[] | AttendancePeriod[] | AttendanceCheckin[];
+        summary: AttendanceSummary;
+    };
+    teachers: {
+        attendance: TeacherAttendance[];
+        summary: AttendanceSummary;
+    };
+}
+
+export interface MonthlyReportStudent {
+    studentId: string;
+    classId: string;
+    sectionId?: string;
+    present: number;
+    absent: number;
+    late: number;
+    halfDay: number;
+    leave: number;
+    total: number;
+    percentage: string;
+}
+
+export interface MonthlyReportTeacher {
+    teacherId: string;
+    present: number;
+    absent: number;
+    late: number;
+    halfDay: number;
+    leave: number;
+    total: number;
+    percentage: string;
+}
+
+export interface MonthlyReport {
+    year: number;
+    month: number;
+    startDate: string;
+    endDate: string;
+    students?: {
+        byStudent: MonthlyReportStudent[];
+        totalRecords: number;
+        workingDays: number;
+    };
+    teachers?: {
+        byTeacher: MonthlyReportTeacher[];
+        totalRecords: number;
+        workingDays: number;
+    };
+}
+
+export interface ClassWiseReport {
+    classId: string;
+    sectionId?: string;
+    present: number;
+    absent: number;
+    late: number;
+    halfDay: number;
+    leave: number;
+    total: number;
+    percentage: string;
 }

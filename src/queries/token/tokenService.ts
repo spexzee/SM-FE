@@ -81,6 +81,14 @@ class TokenService {
     return this.decodeToken()?.schoolDbName ?? null;
   }
 
+  static getTeacherId(): string | null {
+    return this.decodeToken()?.teacherId ?? null;
+  }
+
+  static getStudentId(): string | null {
+    return this.decodeToken()?.studentId ?? null;
+  }
+
   static isTokenExpired(): boolean {
     const decoded = this.decodeToken();
     if (!decoded?.exp) return true;
