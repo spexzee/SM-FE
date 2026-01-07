@@ -58,6 +58,9 @@ const TeacherAttendancePage = () => {
                 };
             });
             setAttendance(existing);
+        } else {
+            // Clear attendance when no data exists (date changed)
+            setAttendance({});
         }
     }, [existingAttendance]);
 
@@ -107,6 +110,7 @@ const TeacherAttendancePage = () => {
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
                         InputLabelProps={{ shrink: true }}
+                        inputProps={{ max: new Date().toLocaleDateString('en-CA') }}
                     />
                     <Button size="small" variant="outlined" color="success" onClick={() => handleMarkAll('present')}>
                         Mark All Present
@@ -157,7 +161,7 @@ const TeacherAttendancePage = () => {
                                         <TableCell align="center">
                                             <ToggleButtonGroup
                                                 size="small"
-                                                value={att?.status || 'present'}
+                                                value={att?.status || null}
                                                 exclusive
                                                 onChange={(_, value) => value && handleStatusChange(teacher.teacherId, value)}
                                             >

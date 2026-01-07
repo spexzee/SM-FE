@@ -74,9 +74,9 @@ const SimpleAttendance = () => {
     // Mark attendance mutation
     const markAttendance = useMarkSimpleAttendance(schoolId);
 
-    // Initialize attendance from existing data
+    // Initialize attendance from existing data only
     useEffect(() => {
-        if (existingAttendance?.data) {
+        if (existingAttendance?.data && existingAttendance.data.length > 0) {
             const existing: Record<string, AttendanceRecord> = {};
             existingAttendance.data.forEach(a => {
                 existing[a.studentId] = {
@@ -86,22 +86,11 @@ const SimpleAttendance = () => {
                 };
             });
             setAttendance(existing);
+        } else {
+            // Clear attendance when no data exists (date/class changed)
+            setAttendance({});
         }
     }, [existingAttendance]);
-
-    // Initialize all students as present by default when students change
-    useEffect(() => {
-        if (students.length > 0 && Object.keys(attendance).length === 0) {
-            const initial: Record<string, AttendanceRecord> = {};
-            students.forEach((s: Student) => {
-                initial[s.studentId] = {
-                    studentId: s.studentId,
-                    status: 'present',
-                };
-            });
-            setAttendance(initial);
-        }
-    }, [students]);
 
     const handleStatusChange = (studentId: string, status: AttendanceStatus) => {
         setAttendance(prev => ({
@@ -172,6 +161,7 @@ const SimpleAttendance = () => {
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
                         InputLabelProps={{ shrink: true }}
+                        inputProps={{ max: new Date().toLocaleDateString('en-CA') }}
                         sx={{ minWidth: 150 }}
                     />
                     <FormControl sx={{ minWidth: 150 }}>
@@ -264,7 +254,7 @@ const SimpleAttendance = () => {
                                     <TableCell align="center">
                                         <ToggleButtonGroup
                                             size="small"
-                                            value={attendance[student.studentId]?.status || 'present'}
+                                            value={attendance[student.studentId]?.status || null}
                                             exclusive
                                             onChange={(_, value) => value && handleStatusChange(student.studentId, value)}
                                         >

@@ -124,6 +124,7 @@ const CheckInAttendance = () => {
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
                         InputLabelProps={{ shrink: true }}
+                        inputProps={{ max: new Date().toLocaleDateString('en-CA') }}
                     />
                     <FormControl sx={{ minWidth: 150 }}>
                         <InputLabel>Class</InputLabel>

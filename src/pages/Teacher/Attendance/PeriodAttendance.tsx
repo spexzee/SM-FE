@@ -85,9 +85,9 @@ const PeriodAttendance = () => {
 
     const markAttendance = useMarkPeriodAttendance(schoolId);
 
-    // Initialize from existing data
+    // Initialize from existing data only
     useEffect(() => {
-        if (existingAttendance?.data) {
+        if (existingAttendance?.data && existingAttendance.data.length > 0) {
             const existing: Record<string, AttendanceRecord> = {};
             existingAttendance.data.forEach(a => {
                 existing[a.studentId] = {
@@ -97,15 +97,11 @@ const PeriodAttendance = () => {
                 };
             });
             setAttendance(existing);
-        } else if (students.length > 0) {
-            // Initialize all as present
-            const initial: Record<string, AttendanceRecord> = {};
-            students.forEach((s: Student) => {
-                initial[s.studentId] = { studentId: s.studentId, status: 'present' };
-            });
-            setAttendance(initial);
+        } else {
+            // Clear attendance when no data exists (date/class/period changed)
+            setAttendance({});
         }
-    }, [existingAttendance, students]);
+    }, [existingAttendance]);
 
     const handleStatusChange = (studentId: string, status: PeriodStatus) => {
         setAttendance(prev => ({
@@ -168,6 +164,7 @@ const PeriodAttendance = () => {
                             value={selectedDate}
                             onChange={(e) => setSelectedDate(e.target.value)}
                             InputLabelProps={{ shrink: true }}
+                            inputProps={{ max: new Date().toLocaleDateString('en-CA') }}
                             fullWidth
                         />
                     </Grid>
@@ -284,7 +281,7 @@ const PeriodAttendance = () => {
                                     <TableCell align="center">
                                         <ToggleButtonGroup
                                             size="small"
-                                            value={attendance[student.studentId]?.status || 'present'}
+                                            value={attendance[student.studentId]?.status || null}
                                             exclusive
                                             onChange={(_, value) => value && handleStatusChange(student.studentId, value)}
                                         >
