@@ -281,3 +281,76 @@ export interface RequestFilters {
     status?: "pending" | "approved" | "rejected";
     userType?: "teacher" | "student" | "parent" | "sch_admin";
 }
+
+// Section Types (nested in Class)
+export interface Section {
+    sectionId: string;
+    name: string;
+    classTeacherId?: string;
+}
+
+// Class Types
+export interface Class {
+    classId: string;
+    schoolId: string;
+    name: string;
+    description?: string;
+    sections: Section[];
+    status: "active" | "inactive";
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface CreateClassPayload {
+    name: string;
+    description?: string;
+    sections?: { name: string; classTeacherId?: string }[];
+}
+
+export interface UpdateClassPayload {
+    name?: string;
+    description?: string;
+    status?: "active" | "inactive";
+}
+
+export interface AddSectionPayload {
+    name: string;
+    classTeacherId?: string;
+}
+
+export interface AssignClassTeacherPayload {
+    teacherId: string | null;
+}
+
+export interface ClassFilters {
+    status?: "active" | "inactive";
+}
+
+// Subject Types
+export interface Subject {
+    subjectId: string;
+    schoolId: string;
+    name: string;
+    code: string;
+    description?: string;
+    status: "active" | "inactive";
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface CreateSubjectPayload {
+    name: string;
+    code: string;
+    description?: string;
+}
+
+export interface UpdateSubjectPayload {
+    name?: string;
+    code?: string;
+    description?: string;
+    status?: "active" | "inactive";
+}
+
+export interface SubjectFilters {
+    status?: "active" | "inactive";
+}

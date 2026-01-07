@@ -48,6 +48,8 @@ import BarChart from "@mui/icons-material/BarChart";
 import FileCopy from "@mui/icons-material/FileCopy";
 import Undo from "@mui/icons-material/Undo";
 import Assignment from "@mui/icons-material/Assignment";
+import Class from "@mui/icons-material/Class";
+import MenuBook from "@mui/icons-material/MenuBook";
 
 export const MuiIcons = {
   Dashboard,
@@ -101,4 +103,6 @@ export const MuiIcons = {
   FileCopy,
   Undo,
   Assignment,
+  Class,
+  MenuBook,
 };

@@ -14,10 +14,14 @@ import {
     InputLabel,
     Select,
     MenuItem,
+    Autocomplete,
+    Chip,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import { useCreateTeacher, useUpdateTeacher } from '../../queries/Teacher';
-import type { CreateTeacherPayload, Teacher } from '../../types';
+import { useGetClasses } from '../../queries/Class';
+import { useGetSubjects } from '../../queries/Subject';
+import type { CreateTeacherPayload, Teacher, Class, Subject } from '../../types';
 
 interface TeacherDialogProps {
     open: boolean;
@@ -37,6 +41,7 @@ const TeacherDialog: React.FC<TeacherDialogProps> = ({ open, onClose, schoolId, 
         phone: '',
         department: '',
         subjects: [],
+        classes: [],
         status: 'active',
     });
 
@@ -44,6 +49,30 @@ const TeacherDialog: React.FC<TeacherDialogProps> = ({ open, onClose, schoolId, 
 
     const createMutation = useCreateTeacher(schoolId);
     const updateMutation = useUpdateTeacher(schoolId);
+
+    // Fetch classes and subjects for dropdowns
+    const { data: classesData } = useGetClasses(schoolId);
+    const { data: subjectsData } = useGetSubjects(schoolId);
+
+    const classes = classesData?.data || [];
+    const subjects = subjectsData?.data || [];
+
+    // Get class options for Autocomplete - format: "Class Name - Section A, B"
+    const classOptions = classes
+        .filter((c: Class) => c.status === 'active')
+        .map((c: Class) => ({
+            id: c.classId,
+            label: c.name,
+            sections: c.sections.map(s => s.name).join(', '),
+        }));
+
+    // Get subject options for Autocomplete
+    const subjectOptions = subjects
+        .filter((s: Subject) => s.status === 'active')
+        .map((s: Subject) => ({
+            id: s.subjectId,
+            label: `${s.name} (${s.code})`,
+        }));
 
     useEffect(() => {
         if (editData) {
@@ -55,6 +84,7 @@ const TeacherDialog: React.FC<TeacherDialogProps> = ({ open, onClose, schoolId, 
                 phone: editData.phone || '',
                 department: editData.department || '',
                 subjects: editData.subjects || [],
+                classes: editData.classes || [],
                 status: editData.status || 'active',
             });
         } else {
@@ -66,6 +96,7 @@ const TeacherDialog: React.FC<TeacherDialogProps> = ({ open, onClose, schoolId, 
                 phone: '',
                 department: '',
                 subjects: [],
+                classes: [],
                 status: 'active',
             });
         }
@@ -129,6 +160,7 @@ const TeacherDialog: React.FC<TeacherDialogProps> = ({ open, onClose, schoolId, 
             phone: '',
             department: '',
             subjects: [],
+            classes: [],
             status: 'active',
         });
         setErrors({});
@@ -144,7 +176,7 @@ const TeacherDialog: React.FC<TeacherDialogProps> = ({ open, onClose, schoolId, 
         'Operation failed';
 
     return (
-        <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+        <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
             <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 {isEditMode ? 'Edit Teacher' : 'Add Teacher'}
                 <IconButton onClick={handleClose} size="small">
@@ -229,6 +261,89 @@ const TeacherDialog: React.FC<TeacherDialogProps> = ({ open, onClose, schoolId, 
                                 fullWidth
                             />
                         </Grid>
+
+                        {/* Classes Multi-Select */}
+                        <Grid size={{ xs: 12 }}>
+                            <Autocomplete
+                                multiple
+                                options={classOptions}
+                                getOptionLabel={(option) => option.label}
+                                value={classOptions.filter(opt => formData.classes?.includes(opt.id))}
+                                onChange={(_, newValue) => {
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        classes: newValue.map(v => v.id),
+                                    }));
+                                }}
+                                isOptionEqualToValue={(option, value) => option.id === value.id}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        label="Assigned Classes"
+                                        placeholder="Select classes"
+                                    />
+                                )}
+                                renderTags={(value, getTagProps) =>
+                                    value.map((option, index) => (
+                                        <Chip
+                                            label={option.label}
+                                            {...getTagProps({ index })}
+                                            key={option.id}
+                                            color="primary"
+                                            variant="outlined"
+                                        />
+                                    ))
+                                }
+                                renderOption={(props, option) => (
+                                    <li {...props} key={option.id}>
+                                        <div>
+                                            <strong>{option.label}</strong>
+                                            {option.sections && (
+                                                <span style={{ color: 'gray', marginLeft: 8 }}>
+                                                    Sections: {option.sections}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </li>
+                                )}
+                            />
+                        </Grid>
+
+                        {/* Subjects Multi-Select */}
+                        <Grid size={{ xs: 12 }}>
+                            <Autocomplete
+                                multiple
+                                options={subjectOptions}
+                                getOptionLabel={(option) => option.label}
+                                value={subjectOptions.filter(opt => formData.subjects?.includes(opt.id))}
+                                onChange={(_, newValue) => {
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        subjects: newValue.map(v => v.id),
+                                    }));
+                                }}
+                                isOptionEqualToValue={(option, value) => option.id === value.id}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        label="Assigned Subjects"
+                                        placeholder="Select subjects"
+                                    />
+                                )}
+                                renderTags={(value, getTagProps) =>
+                                    value.map((option, index) => (
+                                        <Chip
+                                            label={option.label}
+                                            {...getTagProps({ index })}
+                                            key={option.id}
+                                            color="secondary"
+                                            variant="outlined"
+                                        />
+                                    ))
+                                }
+                            />
+                        </Grid>
+
                         <Grid size={{ xs: 12 }}>
                             <FormControl fullWidth>
                                 <InputLabel>Status</InputLabel>

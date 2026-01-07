@@ -27,6 +27,12 @@ export * from "./Parent";
 // Request (User Service)
 export * from "./Request";
 
+// Class (User Service)
+export * from "./Class";
+
+// Subject (User Service)
+export * from "./Subject";
+
 // API utility
 export { default as useApi } from "./useApi";
 

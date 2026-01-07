@@ -17,6 +17,8 @@ import SchoolAdminStudents from "../pages/SchoolAdmin/Students";
 import Parents from "../pages/SchoolAdmin/Parents";
 import SchoolAdminProfile from "../pages/SchoolAdmin/Profile";
 import Requests from "../pages/SchoolAdmin/Requests";
+import SchoolAdminClasses from "../pages/SchoolAdmin/Classes";
+import SchoolAdminSubjects from "../pages/SchoolAdmin/Subjects";
 
 // Teacher Pages
 import TeacherDashboard from "../pages/Teacher/Dashboard";
@@ -52,6 +54,8 @@ const MainRouters = () => {
       <Route element={<ProtectedRoute allowedRoles={["sch_admin"]} />}>
         <Route path="/school-admin/dashboard" element={<SchoolAdminDashboard />} />
         <Route path="/school-admin/school" element={<School />} />
+        <Route path="/school-admin/classes" element={<SchoolAdminClasses />} />
+        <Route path="/school-admin/subjects" element={<SchoolAdminSubjects />} />
         <Route path="/school-admin/teachers" element={<Teachers />} />
         <Route path="/school-admin/students" element={<SchoolAdminStudents />} />
         <Route path="/school-admin/parents" element={<Parents />} />
