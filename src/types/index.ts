@@ -40,10 +40,10 @@ export interface CreateSchoolPayload {
     schoolContact?: string;
     schoolWebsite?: string;
     attendanceSettings?: {
-        mode: "simple" | "period_wise" | "check_in_out";
+        mode?: "simple" | "period_wise" | "check_in_out";
         workingHours?: {
-            start: string;
-            end: string;
+            start?: string;
+            end?: string;
         };
         lateThresholdMinutes?: number;
         halfDayThresholdMinutes?: number;

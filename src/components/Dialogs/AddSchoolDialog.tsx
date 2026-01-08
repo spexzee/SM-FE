@@ -10,6 +10,12 @@ import {
     CircularProgress,
     Alert,
     IconButton,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Typography,
+    Divider,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import { useCreateSchool, useUpdateSchool } from '../../queries/School';
@@ -32,6 +38,13 @@ const SchoolDialog: React.FC<SchoolDialogProps> = ({ open, onClose, editData }) 
         schoolEmail: '',
         schoolContact: '',
         schoolWebsite: '',
+        attendanceSettings: {
+            mode: 'simple',
+            workingHours: { start: '08:00', end: '16:00' },
+            lateThresholdMinutes: 15,
+            halfDayThresholdMinutes: 240,
+            periodsPerDay: 8,
+        },
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
@@ -50,6 +63,13 @@ const SchoolDialog: React.FC<SchoolDialogProps> = ({ open, onClose, editData }) 
                 schoolEmail: editData.schoolEmail || '',
                 schoolContact: editData.schoolContact || '',
                 schoolWebsite: editData.schoolWebsite || '',
+                attendanceSettings: editData.attendanceSettings || {
+                    mode: 'simple',
+                    workingHours: { start: '08:00', end: '16:00' },
+                    lateThresholdMinutes: 15,
+                    halfDayThresholdMinutes: 240,
+                    periodsPerDay: 8,
+                },
             });
         } else {
             setFormData({
@@ -60,6 +80,13 @@ const SchoolDialog: React.FC<SchoolDialogProps> = ({ open, onClose, editData }) 
                 schoolEmail: '',
                 schoolContact: '',
                 schoolWebsite: '',
+                attendanceSettings: {
+                    mode: 'simple',
+                    workingHours: { start: '08:00', end: '16:00' },
+                    lateThresholdMinutes: 15,
+                    halfDayThresholdMinutes: 240,
+                    periodsPerDay: 8,
+                },
             });
         }
     }, [editData]);
@@ -107,6 +134,7 @@ const SchoolDialog: React.FC<SchoolDialogProps> = ({ open, onClose, editData }) 
                         schoolEmail: formData.schoolEmail,
                         schoolContact: formData.schoolContact,
                         schoolWebsite: formData.schoolWebsite,
+                        attendanceSettings: formData.attendanceSettings,
                     },
                 });
             } else {
@@ -127,6 +155,13 @@ const SchoolDialog: React.FC<SchoolDialogProps> = ({ open, onClose, editData }) 
             schoolEmail: '',
             schoolContact: '',
             schoolWebsite: '',
+            attendanceSettings: {
+                mode: 'simple',
+                workingHours: { start: '08:00', end: '16:00' },
+                lateThresholdMinutes: 15,
+                halfDayThresholdMinutes: 240,
+                periodsPerDay: 8,
+            },
         });
         setErrors({});
         createMutation.reset();
@@ -225,6 +260,89 @@ const SchoolDialog: React.FC<SchoolDialogProps> = ({ open, onClose, editData }) 
                             onChange={handleChange}
                             fullWidth
                         />
+
+                        <Divider sx={{ my: 1 }} />
+                        <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 1 }}>
+                            Attendance Settings
+                        </Typography>
+
+                        <FormControl fullWidth>
+                            <InputLabel>Attendance Mode</InputLabel>
+                            <Select
+                                value={formData.attendanceSettings?.mode || 'simple'}
+                                label="Attendance Mode"
+                                onChange={(e) => setFormData(prev => ({
+                                    ...prev,
+                                    attendanceSettings: {
+                                        ...prev.attendanceSettings,
+                                        mode: e.target.value as 'simple' | 'period_wise' | 'check_in_out',
+                                    }
+                                }))}
+                            >
+                                <MenuItem value="simple">Simple Daily Attendance</MenuItem>
+                                <MenuItem value="period_wise">Period-wise Attendance</MenuItem>
+                                <MenuItem value="check_in_out">Check-In / Check-Out</MenuItem>
+                            </Select>
+                        </FormControl>
+
+                        {formData.attendanceSettings?.mode === 'period_wise' && (
+                            <TextField
+                                type="number"
+                                label="Periods Per Day"
+                                value={formData.attendanceSettings?.periodsPerDay || 8}
+                                onChange={(e) => setFormData(prev => ({
+                                    ...prev,
+                                    attendanceSettings: {
+                                        ...prev.attendanceSettings,
+                                        mode: prev.attendanceSettings?.mode || 'simple',
+                                        periodsPerDay: parseInt(e.target.value) || 8,
+                                    }
+                                }))}
+                                inputProps={{ min: 1, max: 12 }}
+                                fullWidth
+                            />
+                        )}
+
+                        {formData.attendanceSettings?.mode === 'check_in_out' && (
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                <TextField
+                                    type="time"
+                                    label="Working Hours Start"
+                                    value={formData.attendanceSettings?.workingHours?.start || '08:00'}
+                                    onChange={(e) => setFormData(prev => ({
+                                        ...prev,
+                                        attendanceSettings: {
+                                            ...prev.attendanceSettings,
+                                            mode: prev.attendanceSettings?.mode || 'simple',
+                                            workingHours: {
+                                                start: e.target.value,
+                                                end: prev.attendanceSettings?.workingHours?.end || '16:00',
+                                            }
+                                        }
+                                    }))}
+                                    InputLabelProps={{ shrink: true }}
+                                    fullWidth
+                                />
+                                <TextField
+                                    type="time"
+                                    label="Working Hours End"
+                                    value={formData.attendanceSettings?.workingHours?.end || '16:00'}
+                                    onChange={(e) => setFormData(prev => ({
+                                        ...prev,
+                                        attendanceSettings: {
+                                            ...prev.attendanceSettings,
+                                            mode: prev.attendanceSettings?.mode || 'simple',
+                                            workingHours: {
+                                                start: prev.attendanceSettings?.workingHours?.start || '08:00',
+                                                end: e.target.value,
+                                            }
+                                        }
+                                    }))}
+                                    InputLabelProps={{ shrink: true }}
+                                    fullWidth
+                                />
+                            </Box>
+                        )}
                     </Box>
                 </DialogContent>
 
