@@ -132,3 +132,46 @@ export const useCancelLeave = (schoolId: string) => {
         },
     });
 };
+
+/**
+ * Get leave statistics for dashboard (Admin)
+ */
+export interface LeaveStats {
+    todayPending: number;
+    todayTotal: number;
+    totalPending: number;
+    teacherPending: number;
+    studentPending: number;
+}
+
+export const useGetLeaveStats = (schoolId: string) => {
+    return useQuery({
+        queryKey: ["leave", "stats", schoolId],
+        queryFn: () =>
+            useApi<ApiResponse<LeaveStats>>(
+                "GET",
+                `/api/school/${schoolId}/leave/stats`
+            ),
+        enabled: !!schoolId,
+    });
+};
+
+/**
+ * Get student leave requests for class teacher
+ */
+export const useGetStudentLeavesForTeacher = (
+    schoolId: string,
+    options?: { status?: string; classId?: string }
+) => {
+    return useQuery({
+        queryKey: ["leave", "class-leaves", schoolId, options],
+        queryFn: () =>
+            useApi<ApiResponse<{ leaves: LeaveRequest[]; summary: LeaveSummary }>>(
+                "GET",
+                `/api/school/${schoolId}/leave/class-leaves`,
+                undefined,
+                options
+            ),
+        enabled: !!schoolId,
+    });
+};

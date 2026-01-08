@@ -45,6 +45,7 @@ import StudentMyLeaves from "../pages/Student/Leave/MyLeaves";
 // Teacher Leave Pages (reuse Student structure with minor changes)
 import TeacherApplyLeave from "../pages/Teacher/Leave/ApplyLeave";
 import TeacherMyLeaves from "../pages/Teacher/Leave/MyLeaves";
+import TeacherStudentLeaves from "../pages/Teacher/Leave/StudentLeaves";
 
 const MainRouters = () => {
   return (
@@ -84,6 +85,7 @@ const MainRouters = () => {
         <Route path="/teacher/my-requests" element={<TeacherMyRequests />} />
         <Route path="/teacher/leave/apply" element={<TeacherApplyLeave />} />
         <Route path="/teacher/leave/my" element={<TeacherMyLeaves />} />
+        <Route path="/teacher/leave/students" element={<TeacherStudentLeaves />} />
         <Route path="/teacher/profile" element={<TeacherProfile />} />
       </Route>
 

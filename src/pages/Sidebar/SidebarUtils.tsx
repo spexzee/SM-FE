@@ -89,6 +89,12 @@ export const SchoolAdminMenuItems: SideBarMenuItemType[] = [
     isExpandable: false,
   },
   {
+    name: "Leave Requests",
+    icon: <MuiIcons.EventNote />,
+    path: "/school-admin/leave",
+    isExpandable: false,
+  },
+  {
     name: "Profile",
     icon: <MuiIcons.AccountCircle />,
     path: "/school-admin/profile",
@@ -135,6 +141,28 @@ export const TeachersMenuItems: SideBarMenuItemType[] = [
     isExpandable: false,
   },
   {
+    name: "Leave",
+    icon: <MuiIcons.EventNote />,
+    isExpandable: true,
+    subItems: [
+      {
+        name: "Apply Leave",
+        icon: <MuiIcons.AddCircle />,
+        path: "/teacher/leave/apply",
+      },
+      {
+        name: "My Leaves",
+        icon: <MuiIcons.EventNote />,
+        path: "/teacher/leave/my",
+      },
+      {
+        name: "Student Leaves",
+        icon: <MuiIcons.Group />,
+        path: "/teacher/leave/students",
+      },
+    ],
+  },
+  {
     name: "Profile",
     icon: <MuiIcons.AccountCircle />,
     path: "/teacher/profile",
@@ -173,6 +201,23 @@ export const StudentsMenuItems: SideBarMenuItemType[] = [
     icon: <MuiIcons.Assignment />,
     path: "/student/my-requests",
     isExpandable: false,
+  },
+  {
+    name: "Leave",
+    icon: <MuiIcons.EventNote />,
+    isExpandable: true,
+    subItems: [
+      {
+        name: "Apply Leave",
+        icon: <MuiIcons.AddCircle />,
+        path: "/student/leave/apply",
+      },
+      {
+        name: "My Leaves",
+        icon: <MuiIcons.EventNote />,
+        path: "/student/leave/my",
+      },
+    ],
   },
   {
     name: "Profile",
