@@ -50,6 +50,7 @@ import Undo from "@mui/icons-material/Undo";
 import Assignment from "@mui/icons-material/Assignment";
 import Class from "@mui/icons-material/Class";
 import MenuBook from "@mui/icons-material/MenuBook";
+import EventNote from "@mui/icons-material/EventNote";
 
 export const MuiIcons = {
   Dashboard,
@@ -105,4 +106,5 @@ export const MuiIcons = {
   Assignment,
   Class,
   MenuBook,
+  EventNote,
 };
